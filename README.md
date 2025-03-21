@@ -34,6 +34,7 @@ noise_pred_net:
     * 结合`global_cond`: 编码后的`timestep`特征与`global_cond`（即展平的观测值）沿最后一个维度连接，形成一个统一的条件向量：`global_feature = torch.cat([global_feature, global_cond], axis=-1)`
     * 处理`noised_action`: `noised_action` 首先被重排维度，从 (B,T,C) 转换为 (B,C,T)，以适应卷积操作，然后作为网络的主输入 x 进入 U-Net 的下采样路径
     * 条件应用机制：在每个`ConditionalResidualBlock1D`中，条件信息`global_feature`通过`FiLM`机制应用：`out = scale * out + bias`
+
 训练:
 1. 读取数据集里的`nobs`和`naction`
 2. 随机产生高斯噪声

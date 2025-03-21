@@ -1,24 +1,28 @@
 import torch
 import zarr, os, gdown
-from .utils import get_data_stats, normalize_data, create_sample_indices, sample_sequence
+from .utils import (
+    get_data_stats,
+    normalize_data,
+    create_sample_indices,
+    sample_sequence,
+)
 
 
 # dataset
 class PushTStateDataset(torch.utils.data.Dataset):
-    def __init__(self, dataset_path,
-                 pred_horizon, obs_horizon, action_horizon):
+    def __init__(self, dataset_path, pred_horizon, obs_horizon, action_horizon):
 
         # read from zarr dataset
-        dataset_root = zarr.open(dataset_path, 'r')
+        dataset_root = zarr.open(dataset_path, "r")
         # All demonstration episodes are concatenated in the first dimension N
         train_data = {
             # (N, action_dim)
-            'action': dataset_root['data']['action'][:],
+            "action": dataset_root["data"]["action"][:],
             # (N, obs_dim)
-            'obs': dataset_root['data']['state'][:]
+            "obs": dataset_root["data"]["state"][:],
         }
         # Marks one-past the last index for each episode
-        episode_ends = dataset_root['meta']['episode_ends'][:]
+        episode_ends = dataset_root["meta"]["episode_ends"][:]
 
         # compute start and end of each state-action sequence
         # also handles padding
@@ -26,8 +30,9 @@ class PushTStateDataset(torch.utils.data.Dataset):
             episode_ends=episode_ends,
             sequence_length=pred_horizon,
             # add padding such that each timestep in the dataset are seen
-            pad_before=obs_horizon-1,
-            pad_after=action_horizon-1)
+            pad_before=obs_horizon - 1,
+            pad_after=action_horizon - 1,
+        )
 
         # compute statistics and normalized data to [-1,1]
         stats = dict()
@@ -49,8 +54,9 @@ class PushTStateDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         # get the start/end indices for this datapoint
-        buffer_start_idx, buffer_end_idx, \
-            sample_start_idx, sample_end_idx = self.indices[idx]
+        buffer_start_idx, buffer_end_idx, sample_start_idx, sample_end_idx = (
+            self.indices[idx]
+        )
 
         # get normalized data using these indices
         nsample = sample_sequence(
@@ -59,14 +65,15 @@ class PushTStateDataset(torch.utils.data.Dataset):
             buffer_start_idx=buffer_start_idx,
             buffer_end_idx=buffer_end_idx,
             sample_start_idx=sample_start_idx,
-            sample_end_idx=sample_end_idx
+            sample_end_idx=sample_end_idx,
         )
 
         # discard unused observations
-        nsample['obs'] = nsample['obs'][:self.obs_horizon,:]
+        nsample["obs"] = nsample["obs"][: self.obs_horizon, :]
         return nsample
 
-#@markdown ### **Dataset Demo**
+
+# @markdown ### **Dataset Demo**
 
 # download demonstration data from Google Drive
 dataset_path = "pusht_cchi_v7_replay.zarr.zip"
@@ -78,21 +85,21 @@ if not os.path.isfile(dataset_path):
 pred_horizon = 16
 obs_horizon = 2
 action_horizon = 8
-#|o|o|                             observations: 2
-#| |a|a|a|a|a|a|a|a|               actions executed: 8
-#|p|p|p|p|p|p|p|p|p|p|p|p|p|p|p|p| actions predicted: 16
+# |o|o|                             observations: 2
+# | |a|a|a|a|a|a|a|a|               actions executed: 8
+# |p|p|p|p|p|p|p|p|p|p|p|p|p|p|p|p| actions predicted: 16
 
 # create dataset from file
 dataset = PushTStateDataset(
     dataset_path=dataset_path,
     pred_horizon=pred_horizon,
     obs_horizon=obs_horizon,
-    action_horizon=action_horizon
+    action_horizon=action_horizon,
 )
 # save training data statistics (min, max) for each dim
 stats = dataset.stats
 
-device = torch.device('cuda')
+device = torch.device("cuda")
 
 # observation and action dimensions corresponding to
 # the output of PushTEnv
