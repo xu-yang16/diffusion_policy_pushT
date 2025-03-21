@@ -1,6 +1,6 @@
 import torch
 import zarr, os, gdown
-from utils import get_data_stats, normalize_data, create_sample_indices, sample_sequence
+from .utils import get_data_stats, normalize_data, create_sample_indices, sample_sequence
 
 
 # dataset

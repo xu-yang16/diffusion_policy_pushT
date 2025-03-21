@@ -10,3 +10,4 @@ pymunk==6.2.1
 gym==0.26.2
 shapely==1.8.4
 moviepy
+matplotlib

@@ -5,9 +5,10 @@ from diffusers.schedulers.scheduling_ddpm import DDPMScheduler
 from diffusers.training_utils import EMAModel
 from diffusers.optimization import get_scheduler
 from tqdm.auto import tqdm
-from env import PushTEnv
-from dataset import dataset, pred_horizon, obs_horizon, action_horizon, stats, device, obs_dim, action_dim
-from network import ConditionalUnet1D
+
+from dp_utils.env import PushTEnv
+from dp_utils.dataset import dataset, pred_horizon, obs_horizon, action_horizon, stats, device, obs_dim, action_dim
+from dp_utils.network import ConditionalUnet1D
 
 
 # 0. create env object
