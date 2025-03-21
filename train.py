@@ -43,7 +43,7 @@ dataloader = torch.utils.data.DataLoader(
     shuffle=True,
     # accelerate cpu-gpu transfer
     pin_memory=True,
-    # don't kill worker process afte each epoch
+    # don't kill worker process after each epoch
     persistent_workers=True
 )
 
@@ -110,7 +110,7 @@ ema = EMAModel(
     power=0.75)
 
 # Standard ADAM optimizer
-# Note that EMA parametesr are not optimized
+# Note that EMA parameters are not optimized
 optimizer = torch.optim.AdamW(
     params=noise_pred_net.parameters(),
     lr=1e-4, weight_decay=1e-6)
